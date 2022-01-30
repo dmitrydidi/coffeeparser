@@ -59,3 +59,17 @@ lower = satisfy isLower
 upper:: Parser Char
 upper = satisfy isUpper
 
+alphanum:: Parser Char
+alphanum = satisfy isAlphaNum
+
+ident:: Parser String
+ident = lower >>= \ x -> many alphanum >>= \ xs -> return (x:xs)
+
+nat:: Parser Int
+nat = some digit >>= \ xs -> return (read xs)
+
+space:: Parser ()
+space = many (satisfy isSpace) >> return ()
+
+int:: Parser Int
+int = (char '-' >>= \ c -> nat >>= \n -> return (-n)) <|> nat
