@@ -72,4 +72,16 @@ space:: Parser ()
 space = many (satisfy isSpace) >> return ()
 
 int:: Parser Int
-int = (char '-' >>= \ c -> nat >>= \n -> return (-n)) <|> nat
+int = (char '-' >>= \ ns -> nat >>= \n -> return (-n)) <|> nat
+
+token::Parser a -> Parser a
+token parse = space >>= \ out -> parse >>= \out' -> space >> return (out')
+
+natural:: Parser Int
+natural = token nat
+
+integer:: Parser Int
+integer = token int
+
+symbol:: String -> Parser String
+symbol xs = token $ extractString xs
