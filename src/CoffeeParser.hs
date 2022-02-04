@@ -85,3 +85,52 @@ integer = token int
 
 symbol:: String -> Parser String
 symbol xs = token $ extractString xs
+
+expr :: Parser Int
+expr = do
+         t <- term
+         do
+            symbol "+"
+            e <- expr
+            return (t+e)
+            <|> do
+                   symbol "-"
+                   e' <- expr
+                   return (t-e')
+            <|> return t
+
+term :: Parser Int
+term = do
+         f <- exponentiation
+         do
+             symbol "*"
+             t <-term
+             return (f*t)
+             <|> do
+                    symbol "/"
+                    t' <- term
+                    return (f `div` t')
+             <|> return f
+
+exponentiation:: Parser Int
+exponentiation = do
+                   f <- factor
+                   do
+                       symbol "^"
+                       f' <- exponentiation
+                       return (f^f')
+                       <|> return f
+
+factor :: Parser Int
+factor = do
+            symbol "("
+            e <- expr
+            symbol ")"
+            return e
+            <|> integer
+
+eval :: String -> Int
+eval xs = case  (useParser expr xs) of
+              [(n, [])] -> n
+              [(_,out)] -> error ("Unused input" ++ out)
+              [] -> error "Invalid input"
