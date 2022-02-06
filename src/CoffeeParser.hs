@@ -120,14 +120,12 @@ exponentiation = do
                        f' <- exponentiation
                        return (f^f')
                        <|> return f
-
 factor :: Parser Int
-factor = do
-            symbol "("
-            e <- expr
-            symbol ")"
-            return e
-            <|> integer
+factor = (symbol "(" >>=
+           \t -> expr >>=
+           \e -> symbol ")" >>
+           return e )
+          <|> integer
 
 eval :: String -> Int
 eval xs = case  (useParser expr xs) of
