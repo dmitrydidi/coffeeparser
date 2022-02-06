@@ -87,17 +87,9 @@ symbol:: String -> Parser String
 symbol xs = token $ extractString xs
 
 expr :: Parser Int
-expr = do
-         t <- term
-         do
-            symbol "+"
-            e <- expr
-            return (t+e)
-            <|> do
-                   symbol "-"
-                   e' <- expr
-                   return (t-e')
-            <|> return t
+expr = term >>= \t -> (symbol "+" >>= \t' -> expr >>= \e -> return (t+e))
+                <|> (symbol "-" >>= \s' -> expr >>= \e' -> return (t-e'))
+                <|> return t
 
 term :: Parser Int
 term = do
